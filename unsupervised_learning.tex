@@ -1,0 +1,206 @@
+	\section{Unüberwachtes Lernen (unsupervised learning)}
+	\subsection{Prototypen und Clustering}
+	\begin{itemize}
+		\item Clustering zielt darauf, Gruppen von \dq ähnlichen\dq Datenpunkten zu finden (und gegebenenfalls zu repräsentieren)
+		\item in einfacher Form ordnet ein Clusteringalgorithmus einen Punkt jeweils einem Prototypen zu (auch genannt: representative, code word, center)
+		\item \dq Ähnlichkeit, Nähe\dq wird durch eine Metrik gemessen
+		\item Metrik ist definiert durch die folgenden drei Eigenschaften:
+		\begin{itemize}
+			\item Symmetrie: $d(a,b) = d(b,a)$
+			\item Positive Definitheit: $d(a,b)\ge0$
+			\item Dreiecksungleichung: $d(a,b) + d(b,c) \ge d(a,c)$
+		\end{itemize}
+	\end{itemize}
+	\subsubsection{Metriken}
+	\begin{itemize}
+		\item Euklidische Metrik:
+		\begin{equation*}
+			d(a,b) = \sqrt{\sum_{i=1}^D(a_i-b_i)^2}
+		\end{equation*}
+		\item Mahalanobis Distanz:
+		\begin{equation*}
+			d(a,b) =\sqrt{(a-b)^T\Sigma^{-1}(a-b)}, \text{ mit } \Sigma^{-1} = <(x-<x>)(x-<x>)^T>
+		\end{equation*}
+	\end{itemize}
+	\subsubsection{Vektorquantifizierung}
+	\begin{itemize}
+		\item ein sehr einfacher Clusteralgorithmus
+		\item gegben die Daten $x_n$
+		\item initialisiere und optimiere $K$ Prototypen $w_k,~ k=1,.., K$
+		\begin{itemize}
+			\item Zuordnung von Daten zum nächstliegenden Prototypen bzgl. Metrik $d()$
+			\begin{equation*}
+				x_n \mapsto w_c, \text{ mit } c = argmin_k~d(x_n,w_k)
+			\end{equation*}
+		\end{itemize}
+		\item Lernziel: wähle die Position der Prototypen um den Quantisierungsfehler zu minimieren:
+		\begin{equation*}
+			E_{VQ} = \frac{1}{N}\sum_{n=1}^Nd(x_n, w_c(x_n))
+		\end{equation*}
+	\end{itemize}
+	\subsubsection{Einfacher VQ-Algorithmus}
+	\begin{enumerate}
+		\item Wähle \# der Prototypen $K$ (Modellselektion)
+		\item initialisiere die Position der $K$ Prototypen
+		\item iteriere über die Daten:
+		\begin{enumerate}
+			\item wähle zufällig $x_k$
+			\item finde den nächstliegenden Prototypen $w_c$
+			\item bewege den Prototypen in Richtung des Datenpunktes
+			\begin{equation*}
+				w_c^{new} = \epsilon(w_c^{old}-x_k), \text { mit Lernrate $\epsilon$ (die über die Zeit geringer wird)}
+			\end{equation*}
+			\item Abbruch, wenn der Fehler konstant bleibt
+		\end{enumerate}
+	\end{enumerate}
+	\subsubsection{k-means}
+	\begin{itemize}
+		\item ein einfacher und effektiver Clusteralgorithmus
+		\item $K$ verschiedene Cluster (Modellselektion)
+		\item $K$ Prototypen $w_k,~k=1,..., K$
+		\item $N$ Datenpunkte $x_n,~n=1,..., N$
+		\item ordne jedem Punkt genau einem Cluster zu durch eine Variable
+		\begin{equation*}
+			r_{nk} = \begin{cases}
+				1 \text{ wenn } \Vert x_n-w_k\Vert^2 < \Vert x_n-w_l\Vert^2 ~\forall l\neq k,~ k=1,.., K\\
+				0 \text{ sonst}
+			\end{cases}
+		\end{equation*}
+		\item minimiere den Quantisierungsfehler $J$ (für euklidische Metrik)
+		\begin{equation*}
+			J = \sum_{n=1}^N\sum_{k=1}^K r_{nk}\Vert x_n-x_k\Vert^2
+		\end{equation*}
+		\item direkte simultane Optimierung von $J$ bzgl. $r_{nk}$ und $w_k$ unmöglich
+		\item Ansatz: Wechsel zwischen zwei Mengen von Variablen
+	\end{itemize}
+	\begin{algorithm}
+		\caption{k-means}\label{euclid}
+		\begin{flushleft}
+			\textbf{Require:} Number of prototypes $K$\\
+			\textbf{Require:} Initialize prototyopes $\set{w_k},~k=1,..., K$
+		\end{flushleft}
+		\begin{algorithmic}[1]
+			\Repeat
+			\State{\textbf{E step}. Minimize $J$ with respect to $r_{nk}$ while keeping the $w_k$ fixed}
+			\State{\textbf{M step}. Minimize $J$ with respekt to $w_k$ while keeping $r_{nk}$ fixed}
+			\Until{convergence criterion is fullfilled}
+		\end{algorithmic}
+	\end{algorithm}
+\newpage
+	\begin{itemize}
+		\item Wechsel zwischen sogenannten E-step und M-step (vereinfachte Version des viel allgemeineren E(xpectation)-M(axmimization Algorithmus)
+		\item E-step: Zuordnung von Punkten zu Clustern für feste Prototypen
+		\begin{equation*}
+			r_{nk} = \begin{cases}
+				1 \text{ wenn } \Vert x_n-w_k\Vert^2 < \Vert x_n-w_l\Vert^2 ~\forall l\neq k,~ k=1,.., K\\
+				0 \text{ sonst}
+			\end{cases}
+		\end{equation*}
+		\item M-step: Update der Clusterzentren $w_k$ für feste Zuordnung
+		\begin{equation*}
+			w_k= \frac{\sum_{n=1}^Nr_{nk}x_n}{\sum_{n=1}^Nr_{nk}}
+		\end{equation*}
+		(damit liegt der neue Prototyp im Zentrum der zugeordneten Punkte)
+		\item k-means konvergiert!
+	\end{itemize}
+	\subsubsection{LGB}
+	\begin{itemize}
+		\item wie findet (oder automatisch verbessert) man die richtige Anzahl an Clustern
+		\item Vorgehen: Iterativ erhöhe Anzahl von Clustern bis 
+		\begin{itemize}
+			\item Quatisierungsfehler unter einem Schwellwert ist
+			\item oder: Maximum an Clustern erreicht ist
+		\end{itemize}
+	\end{itemize}
+	\begin{algorithm}
+	\caption{LGB}\label{euclid}
+	\begin{flushleft}
+		\textbf{Require:} Maximal number of prototypes $L_{max}$\\
+		\textbf{Require:} Threshold $e_{min}$ for minimal quantization error $E_{VQ}$\\
+		\textbf{Require:} Initial codebook comprising a single prototype $w_1 = \frac{1}{N}\sum_{n=1}^Nx_n$
+	\end{flushleft}
+	\begin{algorithmic}[1]
+		\Repeat
+		\ForAll {prototypes $w_l$, $l=1,..., L$ (or for the $M$ prototypes with largest quantization errors)}
+		\State{Create two new prototypes \begin{eqnarray*}
+				c_1 &=& w_l +\epsilon\\
+				c_2 &=& w_l -\epsilon
+			\end{eqnarray*}
+			\hspace*{15pt}where $\epsilon \in \mathbb{R}^D$ is an random vector of small length}
+		\EndFor
+		\State{$L=2L$ (or $L=L+M$)}
+		\State{Apply an arbitrary clustering algorithm with $L$ prototypes starting from the current codebook until convergence, e.g. k-means with $k=L$}
+		\Until{quantization error $E_{VQ} < e_{min}$ or size of codebook $\vert\set{w_k}\vert = L_{max}$}
+	\end{algorithmic}
+	\end{algorithm}
+\newpage
+	\subsubsection{Gaussian Mixture Modell (GMM)}
+	\begin{itemize}
+		\item k-means gruppiert \dq hart\dq jeden Punkt zu einer Gruppe, GMM kann \dq soft\dq clustering
+	\end{itemize}
+	Soft Clustering
+	\begin{itemize}
+		\item Wahrscheinlichkeit für Cluster
+		\item probabilistischer Ansatz
+	\end{itemize}
+	\textbf{Modellselektion:} Wie viele Gauß Funktionen?\\[5pt]
+	\textbf{Parameteroptimierung:} Mittelwerte, Varianz(matrizen), a-Priori Wahrscheinlichkeiten\\[5pt]
+	\textbf{Datenmodell:} 
+	\begin{eqnarray*}
+		P(x) &=& \sum_{k=1}^K\underbrace{\pi_k}_\text{prior}\underbrace{N(x\vert w_k,\Sigma_k)}_\text{Likelihood},~ \sum_k\pi_k=1\\
+		\text{Posterior: } P_k(x_n) &=& \frac{\pi_kN(x_n\vert w_k,\Sigma_k)}{\sum_{i=1}^K\pi_iN(x_n\vert w_i,\Sigma_i)}
+	\end{eqnarray*}
+	Posterior: Wahrscheinlichkeit, dass Punkt $x_n$ zu Klasse $k$ gehört, entspricht einer weichen Zuordnung.\\[5pt]
+	\textbf{Problem:} Likelihood hängt nun von allen Parametern ab.
+	\begin{itemize}
+		\item Parameter können nicht direkt berechnet werden
+	\end{itemize}
+	\textbf{Lösung:} E(xpectation)-M(aximization)
+	\begin{itemize}
+		\item Init: Wähle Startparameter
+		\item Wiederhole:
+		\begin{itemize}
+			\item E: Berechne Posterior aller Punkte
+			\item M: Berechne (optimiere) Parameter
+		\end{itemize}
+	\end{itemize}
+	\subsubsection{EM für GMM}
+	Gegeben ein GMM, Ziel ist es den Likelihood zu maximieren.
+	\begin{enumerate}
+		\item Initialisiere die Mittelwert $\mu_k$, die Kovarianzen $\Sigma_k$ und die Priors $\pi_k$ und berechne den  Anfangswert des log Likelihoods
+		\item \textbf{E step}. Berechne die Posteriors (responsibilities) mit den momentanen Parametern
+		\begin{equation*}
+			\gamma_k(x_n) = \frac{\pi_kN(x_n\vert \mu_k, \Sigma_k)}{\sum_{i=1}^K\pi_iN(x_n\vert \mu_i,\Sigma_i)}
+		\end{equation*}
+		\item \textbf{M step}. Optimiere die Parameter
+		\begin{eqnarray*}
+			N_k &=& \sum_{n=1}^N\gamma_k(x_n)\\
+			\mu_k &=& \frac{1}{N_k}\sum_{n=1}^N\gamma_k(x_n)x_n\\
+			\Sigma_k &=& \frac{1}{N_k}\sum_{n=1}^K\gamma_k(x_n)(x_n-\mu_k)(x_n-\mu_k)^T\\
+			\pi_k &=& \frac{N_k}{N}
+		\end{eqnarray*}
+		\item Berechne den log Likelihood
+		\begin{equation*}
+			ln p(X\vert\mu, \Sigma) = \sum_{n=1}^Nln~\sum_{k=1}^K\pi_kN(x_n\vert \mu_k,\Sigma_k)
+		\end{equation*}
+		Konvergieren die Parameter oder der log Likelihood? Wenn nicht gehe zu 2..
+	\end{enumerate}
+	\subsubsection{Anmerkungen}
+	\begin{itemize}
+		\item Likelihood
+		\begin{itemize}
+			\item Erhöht sich mit jeder Iteration
+			\item Algorithmus konvergiert
+		\end{itemize}
+		\item Initialisierung
+		\begin{itemize}
+			\item Kann zufällig erfolgen
+			\item k-means oder LGB zur Initialisierung der Mittelwerte
+			\item Methoden zur automatischen Wahr der Anzahl existiert
+		\end{itemize}
+		\item Update Schritte
+		\begin{itemize}
+			\item Geschlossene Form für Gauß-Verteilungen
+			\item Für generelle Mixtures muss das nicht sein
+		\end{itemize}
+	\end{itemize}

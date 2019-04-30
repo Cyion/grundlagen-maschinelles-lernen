@@ -1,0 +1,29 @@
+\documentclass[a4paper,10pt]{scrreprt}
+	\usepackage{sty/package}
+	\usepackage{sty/document}
+	\usepackage{sty/math}
+	\usepackage{chngcntr}
+	\usepackage{mathtools}
+	\usepackage[noend]{algpseudocode}
+
+	\lstset{
+	basicstyle=\ttfamily,
+	mathescape
+	}
+	\setlength\parindent{0pt}
+	
+	\pagestyle{fancy}
+	\fancyhead[R]{Grundlagen maschinelles Lernen}
+	\fancyhead[L]{Pascal Reichert, Informatik}
+	
+	\counterwithout{section}{chapter}
+	\counterwithout{figure}{chapter}
+	
+	\algrenewcommand{\algorithmiccomment}[1]{\hfill// #1}
+	\renewcommand{\labelitemi}{$-$}
+
+\begin{document}
+	\input{begriffliche_grundlagen}
+	\input{supervised_learning}
+	\input{unsupervised_learning}
+\end{document}
