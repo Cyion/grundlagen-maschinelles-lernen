@@ -1,4 +1,4 @@
-Script of the lecture Grundlagen maschinelles Lernen at Technische Universität Braunschweig.  
+My notes of the lecture Grundlagen maschinelles Lernen at Technische Universität Braunschweig.  
 Lecture https://www.rob.cs.tu-bs.de/de/node/629.  
 
 
